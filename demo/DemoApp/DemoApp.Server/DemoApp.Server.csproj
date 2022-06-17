@@ -5,7 +5,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\src\Blazor.Analytics\Blazor.Analytics.csproj" />
+    <ProjectReference Include="..\..\..\Blazor.Analytics\GoogleAnalytics.Blazor.csproj" />
+    <ProjectReference Include="..\..\..\GoogleAnalytics.Blazor\GoogleAnalytics.Blazor.csproj" />
+    <ProjectReference Include="..\DemoApp.Client\DemoApp.Client.csproj" />
   </ItemGroup>
 
 </Project>

@@ -1,16 +1,15 @@
-﻿using Microsoft.AspNetCore.Blazor.Hosting;
+﻿using System;
+using System.Net.Http;
 
-namespace DemoApp.Client
-{
-    public class Program
-    {
-        public static void Main(string[] args)
-        {
-            CreateHostBuilder(args).Build().Run();
-        }
+using GoogleAnalytics.Blazor;
 
-        public static IWebAssemblyHostBuilder CreateHostBuilder(string[] args) =>
-            BlazorWebAssemblyHost.CreateDefaultBuilder()
-                .UseBlazorStartup<Startup>();
-    }
-}
+using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
+using Microsoft.Extensions.DependencyInjection;
+
+var builder = WebAssemblyHostBuilder.CreateDefault(args);
+
+builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
+
+builder.Services.AddGoogleAnalytics("G-V061TDSPDR");
+
+await builder.Build().RunAsync();

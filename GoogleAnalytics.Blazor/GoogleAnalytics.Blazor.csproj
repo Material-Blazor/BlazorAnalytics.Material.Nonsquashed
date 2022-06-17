@@ -5,8 +5,8 @@
         
         <TypeScriptToolsVersion>latest</TypeScriptToolsVersion>
 
-        <RootNamespace>Blazor.Analytics</RootNamespace>
-        <AssemblyName>Blazor-Analytics</AssemblyName>
+        <RootNamespace>GoogleAnalytics.Blazor</RootNamespace>
+        <AssemblyName>GoogleAnalytics.Blazor</AssemblyName>
 
         <IsPackable>true</IsPackable>
         <IncludeSymbols>true</IncludeSymbols>
@@ -33,7 +33,7 @@
 
     <!-- TypeScript Build -->
     <ItemGroup>
-        <PackageReference Include="Microsoft.TypeScript.MSBuild" Version="4.3.5">
+        <PackageReference Include="Microsoft.TypeScript.MSBuild" Version="4.7.3">
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
             <PrivateAssets>all</PrivateAssets>
         </PackageReference>
