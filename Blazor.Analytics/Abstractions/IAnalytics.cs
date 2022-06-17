@@ -1,20 +1,19 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace Blazor.Analytics
+namespace GoogleAnalytics.Blazor;
+
+public interface IAnalytics
 {
-    public interface IAnalytics
-    {
-        Task ConfigureGlobalConfigData(Dictionary<string, object> globalConfigData);
-        Task ConfigureGlobalEventData(Dictionary<string, object> globalEventData);
+    Task ConfigureGlobalConfigData(Dictionary<string, object> globalConfigData);
+    Task ConfigureGlobalEventData(Dictionary<string, object> globalEventData);
 
-        Task TrackNavigation(string uri);
+    Task TrackNavigation(string uri);
 
-        Task TrackEvent(string eventName, string eventCategory = null, string eventLabel = null, int? eventValue = null);
-        Task TrackEvent(string eventName, int eventValue, string eventCategory = null, string eventLabel = null);
-        Task TrackEvent(string eventName, object eventData);
+    Task TrackEvent(string eventName, string eventCategory = null, string eventLabel = null, int? eventValue = null);
+    Task TrackEvent(string eventName, int eventValue, string eventCategory = null, string eventLabel = null);
+    Task TrackEvent(string eventName, object eventData);
 
-        void Enable();
-        void Disable();
-    }
+    void Enable();
+    void Disable();
 }

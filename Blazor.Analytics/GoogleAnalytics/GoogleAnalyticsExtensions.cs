@@ -1,32 +1,29 @@
-﻿using Blazor.Analytics.Abstractions;
-using Blazor.Analytics.GoogleAnalytics;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 
-namespace Blazor.Analytics
+namespace GoogleAnalytics.Blazor;
+
+public static class GoogleAnalyticsExtensions
 {
-    public static class GoogleAnalyticsExtensions
+    public static IServiceCollection AddGoogleAnalytics(this IServiceCollection services) => AddGoogleAnalytics(services, null, false);
+    public static IServiceCollection AddGoogleAnalytics(this IServiceCollection services, string trackingId) => AddGoogleAnalytics(services, trackingId, false);
+    public static IServiceCollection AddGoogleAnalytics(this IServiceCollection services, bool debug) => AddGoogleAnalytics(services, null, debug);
+
+    public static IServiceCollection AddGoogleAnalytics(
+        this IServiceCollection services,
+        string trackingId,
+        bool debug)
     {
-        public static IServiceCollection AddGoogleAnalytics(this IServiceCollection services) => AddGoogleAnalytics(services, null, false);
-        public static IServiceCollection AddGoogleAnalytics(this IServiceCollection services, string trackingId) => AddGoogleAnalytics(services, trackingId, false);
-        public static IServiceCollection AddGoogleAnalytics(this IServiceCollection services, bool debug) => AddGoogleAnalytics(services, null, debug);
-
-        public static IServiceCollection AddGoogleAnalytics(
-            this IServiceCollection services,
-            string trackingId,
-            bool debug)
+        services.AddScoped<ITrackingNavigationState, TrackingNavigationState>();
+        return services.AddScoped<IAnalytics>(p =>
         {
-            services.AddScoped<ITrackingNavigationState, TrackingNavigationState>();
-            return services.AddScoped<IAnalytics>(p =>
+            var googleAnalytics = ActivatorUtilities.CreateInstance<GoogleAnalyticsStrategy>(p);
+
+            if (trackingId != null)
             {
-                var googleAnalytics = ActivatorUtilities.CreateInstance<GoogleAnalyticsStrategy>(p);
+                googleAnalytics.Configure(trackingId, debug);
+            }
 
-                if (trackingId != null)
-                {
-                    googleAnalytics.Configure(trackingId, debug);
-                }
-
-                return googleAnalytics;
-            });
-        }
+            return googleAnalytics;
+        });
     }
 }

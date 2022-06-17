@@ -2,12 +2,11 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace Blazor.Analytics.Abstractions
+namespace GoogleAnalytics.Blazor;
+
+public interface ITrackingNavigationState
 {
-    public interface ITrackingNavigationState
-    {
-        void EnableTracking();
-        void DisableTracking();
-        bool IsTrackingEnabled();
-    }
+    void EnableTracking();
+    void DisableTracking();
+    bool IsTrackingEnabled();
 }
