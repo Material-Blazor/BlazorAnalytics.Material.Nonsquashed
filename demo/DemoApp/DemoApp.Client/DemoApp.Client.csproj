@@ -4,14 +4,13 @@
     <TargetFramework>net6.0</TargetFramework>
   </PropertyGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\..\..\Blazor.Analytics\GoogleAnalytics.Blazor.csproj" />
-    <ProjectReference Include="..\..\..\GoogleAnalytics.Blazor\GoogleAnalytics.Blazor.csproj" />
-  </ItemGroup>
-
 	<ItemGroup>
 		<PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="6.0.5" />
 		<PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="6.0.5" PrivateAssets="all" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <ProjectReference Include="..\..\..\GoogleAnalytics.Blazor\GoogleAnalytics.Blazor.csproj" />
 	</ItemGroup>
 
 </Project>
