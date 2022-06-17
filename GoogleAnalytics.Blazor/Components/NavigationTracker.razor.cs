@@ -7,10 +7,9 @@ namespace GoogleAnalytics.Blazor;
 public class NavigationTracker : ComponentBase
 {
     [Inject] private IAnalytics Analytics { get; set; } = null;
-
     [Inject] private NavigationManager NavigationManager { get; set; } = null;
-
     [Inject] private ITrackingNavigationState TrackingNavigationState { get; set; } = null;
+
 
     protected override async Task OnInitializedAsync()
     {
@@ -19,6 +18,7 @@ public class NavigationTracker : ComponentBase
         NavigationManager.LocationChanged -= OnLocationChanged;
         NavigationManager.LocationChanged += OnLocationChanged;
     }
+
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -31,12 +31,18 @@ public class NavigationTracker : ComponentBase
         }
     }
 
+
     public void Dispose()
     {
         NavigationManager.LocationChanged -= OnLocationChanged;
     }
 
-    private async void OnLocationChanged(object sender, LocationChangedEventArgs args) => await OnLocationChanged(args.Location);
+
+    private async void OnLocationChanged(object sender, LocationChangedEventArgs args)
+    {
+        await OnLocationChanged(args.Location).ConfigureAwait(false);
+    }
+
 
     private async Task OnLocationChanged(string location)
     {

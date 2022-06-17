@@ -5,31 +5,42 @@ using Microsoft.JSInterop;
 
 namespace GoogleAnalytics.Blazor;
 
+
+/// <summary>
+/// The google analytics strategy implementing <see cref="IAnalytics"/>. NEED A BETTER DESCRIPTION.
+/// </summary>
+[Obsolete]
 public sealed class GoogleAnalyticsStrategy : IAnalytics
 {
     private readonly IJSRuntime _jsRuntime;
+    
     private bool _isGloballyEnabledTracking = true;
-
     private string _trackingId = null;
     private Dictionary<string, object> _globalConfigData = new Dictionary<string, object>();
     private Dictionary<string, object> _globalEventData = new Dictionary<string, object>();
     private bool _isInitialized = false;
     private bool _debug = false;
 
-    public GoogleAnalyticsStrategy(
-        IJSRuntime jsRuntime
-    )
+
+    public GoogleAnalyticsStrategy(IJSRuntime jsRuntime)
     {
         _jsRuntime = jsRuntime;
     }
 
+
+    /// <summary>
+    /// Sets the tracking id and debug flag.
+    /// </summary>
+    /// <param name="trackingId"></param>
+    /// <param name="debug"></param>
     public void Configure(string trackingId, bool debug)
     {
         _trackingId = trackingId;
         _debug = debug;
     }
 
-    private async Task Initialize()
+
+    private async Task InitializeAsync()
     {
         if (_trackingId == null)
         {
@@ -42,21 +53,28 @@ public sealed class GoogleAnalyticsStrategy : IAnalytics
         _isInitialized = true;
     }
 
+
+    /// <inheritdoc/>
     public async Task ConfigureGlobalConfigData(Dictionary<string, object> globalConfigData)
     {
         if (!_isInitialized)
         {
-            this._globalConfigData = globalConfigData;
+            _globalConfigData = globalConfigData;
 
-            await Initialize();
+            await InitializeAsync().ConfigureAwait(false);
         }
     }
 
-    public async Task ConfigureGlobalEventData(Dictionary<string, object> globalEventData)
+
+    /// <inheritdoc/>
+    public Task ConfigureGlobalEventData(Dictionary<string, object> globalEventData)
     {
-        this._globalEventData = globalEventData;
+        _globalEventData = globalEventData;
+        return Task.CompletedTask;
     }
 
+
+    /// <inheritdoc/>
     public async Task TrackNavigation(string uri)
     {
         if (!_isGloballyEnabledTracking)
@@ -66,30 +84,29 @@ public sealed class GoogleAnalyticsStrategy : IAnalytics
 
         if (!_isInitialized)
         {
-            await Initialize();
+            await InitializeAsync().ConfigureAwait(false);
         }
 
-        await _jsRuntime.InvokeAsync<string>(
-            GoogleAnalyticsInterop.Navigate, _trackingId, uri);
+        await _jsRuntime.InvokeAsync<string>(GoogleAnalyticsInterop.Navigate, _trackingId, uri).ConfigureAwait(false);
     }
 
-    public async Task TrackEvent(
-        string eventName,
-        string eventCategory = null,
-        string eventLabel = null,
-        int? eventValue = null)
+
+    /// <inheritdoc/>
+    public async Task TrackEvent(string eventName, string eventCategory = null, string eventLabel = null, int? eventValue = null)
     {
         await TrackEvent(eventName, new
         {
             event_category = eventCategory, 
             event_label = eventLabel, 
             value = eventValue
-        });
+        }).ConfigureAwait(false);
     }
 
+
+    /// <inheritdoc/>
     public Task TrackEvent(string eventName, int eventValue, string eventCategory = null, string eventLabel = null)
     {
-        return TrackEvent (eventName, eventCategory, eventLabel, eventValue);
+        return TrackEvent(eventName, eventCategory, eventLabel, eventValue);
     }
 
     public async Task TrackEvent(string eventName, object eventData)
@@ -101,15 +118,23 @@ public sealed class GoogleAnalyticsStrategy : IAnalytics
 
         if (!_isInitialized)
         {
-            await Initialize();
+            await InitializeAsync().ConfigureAwait(false);
         }
 
-        await _jsRuntime.InvokeAsync<string>(
-            GoogleAnalyticsInterop.TrackEvent,
-            eventName, eventData, _globalEventData);
+        await _jsRuntime.InvokeAsync<string>( GoogleAnalyticsInterop.TrackEvent, eventName, eventData, _globalEventData).ConfigureAwait(false);
     }
 
-    public void Enable() => _isGloballyEnabledTracking = true;
 
-    public void Disable() => _isGloballyEnabledTracking = false;
+    /// <inheritdoc/>
+    public void Enable()
+    {
+        _isGloballyEnabledTracking = true;
+    }
+
+
+    /// <inheritdoc/>
+    public void Disable()
+    {
+        _isGloballyEnabledTracking = false;
+    }
 }
