@@ -1,5 +1,9 @@
 ﻿namespace GoogleAnalytics.Blazor;
 
+
+/// <summary>
+/// JS Interop function names.
+/// </summary>
 internal static class GoogleAnalyticsInterop
 {
     public const string Configure = "GoogleAnalyticsInterop.configure";

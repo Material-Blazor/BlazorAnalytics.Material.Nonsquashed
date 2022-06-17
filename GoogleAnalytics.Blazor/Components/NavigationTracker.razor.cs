@@ -4,6 +4,10 @@ using System.Threading.Tasks;
 
 namespace GoogleAnalytics.Blazor;
 
+
+/// <summary>
+/// The navigation tracking component. Place at the end of <code>App.razor</code>.
+/// </summary>
 public class NavigationTracker : ComponentBase
 {
     [Inject] private IAnalytics Analytics { get; set; } = null;

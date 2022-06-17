@@ -1,16 +1,31 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿namespace GoogleAnalytics.Blazor;
 
-namespace GoogleAnalytics.Blazor;
 
+/// <summary>
+/// State determining whether to track or not.
+/// </summary>
 public class TrackingNavigationState : ITrackingNavigationState
 {
     private bool _isTrackingEnabled = true;
 
-    public void DisableTracking() => _isTrackingEnabled = false;
 
-    public void EnableTracking() => _isTrackingEnabled = true;
+    /// <inheritdoc/>
+    public void DisableTracking()
+    {
+        _isTrackingEnabled = false;
+    }
 
-    public bool IsTrackingEnabled() => _isTrackingEnabled;
+
+    /// <inheritdoc/>
+    public void EnableTracking()
+    {
+        _isTrackingEnabled = true;
+    }
+
+
+    /// <inheritdoc/>
+    public bool IsTrackingEnabled()
+    {
+        return _isTrackingEnabled;
+    }
 }
