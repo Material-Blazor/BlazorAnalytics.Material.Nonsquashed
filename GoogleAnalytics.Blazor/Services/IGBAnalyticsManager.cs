@@ -70,15 +70,21 @@ public interface IGBAnalyticsManager
     /// <summary>
     /// Enable global tracking.
     /// </summary>
-    void EnableTracking();
+    void EnableGlobalTracking();
 
 
     /// <summary>
     /// Disable global tracking.
     /// </summary>
-    void DisableTracking();
-    
-    
+    void DisableGlobalTracking();
+
+
+    /// <summary>
+    /// True if global tracking is enabled.
+    /// </summary>
+    bool IsGlobalTrackingEnabled();
+
+
     /// <summary>
     /// Suppresses tracking notification to GA of a page hit. Place a call
     /// to this function in <see cref="Microsoft.AspNetCore.Components.ComponentBase.OnInitialized"/>
@@ -86,7 +92,4 @@ public interface IGBAnalyticsManager
     /// that page's tracking.
     /// </summary>
     public void SuppressPageHitTracking();
-
-    [Obsolete] public bool IsTrackingSuppressed();
-    [Obsolete] public void ReEnablePageHitTracking();
 }

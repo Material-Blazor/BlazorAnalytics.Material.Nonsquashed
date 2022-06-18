@@ -8,16 +8,14 @@ using Microsoft.JSInterop;
 namespace GoogleAnalytics.Blazor;
 
 
-/// <summary>
-/// The google analytics strategy implementing <see cref="IGBAnalyticsManager"/>. NEED A BETTER DESCRIPTION.
-/// </summary>
+/// <inheritdoc/>
 [Obsolete]
 public sealed class GBAnalyticsManager : IGBAnalyticsManager
 {
     private readonly IJSRuntime _jsRuntime;
     private readonly NavigationManager _navigationManager;
     
-    private bool _isGloballyEnabledTracking = true;
+    private bool _performGlobalTracking = true;
     private bool _suppressPageHitTracking = false;
     private string _trackingId = null;
     private Dictionary<string, object> _globalConfigData = new Dictionary<string, object>();
@@ -31,17 +29,6 @@ public sealed class GBAnalyticsManager : IGBAnalyticsManager
         _jsRuntime = jsRuntime;
         _navigationManager = navigationManager;
         _navigationManager.LocationChanged += OnLocationChanged;
-
-        try
-        {
-            _ = OnLocationChanged(_navigationManager.Uri);
-        }
-        catch (Exception ex)
-        {
-            _ = ex;
-            // Do nothing because the exception is due to the
-            // js runtime being unavailable during the pre-render cycle
-        }
     }
 
 
@@ -95,7 +82,7 @@ public sealed class GBAnalyticsManager : IGBAnalyticsManager
     /// <inheritdoc/>
     public async Task TrackNavigation(string uri)
     {
-        if (!_isGloballyEnabledTracking)
+        if (!_performGlobalTracking)
         {
             return;
         }
@@ -131,7 +118,7 @@ public sealed class GBAnalyticsManager : IGBAnalyticsManager
     /// <inheritdoc/>
     public async Task TrackEvent(string eventName, object eventData)
     {
-        if (!_isGloballyEnabledTracking)
+        if (!_performGlobalTracking)
         {
             return;
         }
@@ -146,16 +133,23 @@ public sealed class GBAnalyticsManager : IGBAnalyticsManager
 
 
     /// <inheritdoc/>
-    public void EnableTracking()
+    public void EnableGlobalTracking()
     {
-        _isGloballyEnabledTracking = true;
+        _performGlobalTracking = true;
     }
 
 
     /// <inheritdoc/>
-    public void DisableTracking()
+    public void DisableGlobalTracking()
     {
-        _isGloballyEnabledTracking = false;
+        _performGlobalTracking = false;
+    }
+
+
+    /// <inheritdoc/>
+    public bool IsGlobalTrackingEnabled()
+    {
+        return _performGlobalTracking;
     }
 
 
@@ -164,9 +158,6 @@ public sealed class GBAnalyticsManager : IGBAnalyticsManager
     {
         _suppressPageHitTracking = true;
     }
-
-    public bool IsTrackingSuppressed() => _suppressPageHitTracking;
-    public void ReEnablePageHitTracking() => _suppressPageHitTracking = false;
 
 
     private async void OnLocationChanged(object sender, LocationChangedEventArgs args)
