@@ -47,8 +47,7 @@ public sealed class GoogleAnalyticsStrategy : IAnalytics
             throw new InvalidOperationException("Invalid TrackingId");
         }
 
-        await _jsRuntime.InvokeAsync<string>(
-            GoogleAnalyticsInterop.Configure, _trackingId, _globalConfigData, _debug);
+        await _jsRuntime.InvokeAsync<string>(GoogleAnalyticsInterop.Configure, _trackingId, _globalConfigData, _debug);
         
         _isInitialized = true;
     }

@@ -1,0 +1,33 @@
+﻿@page "/counter"
+
+@using GoogleAnalytics.Blazor
+
+<PageTitle>Counter</PageTitle>
+
+<h1>Counter</h1>
+
+<p role="status">Current count: @currentCount</p>
+
+<button class="btn btn-primary" @onclick="IncrementCount">Click me</button>
+
+@code {
+    private int currentCount = 0;
+
+    [Inject] private IAnalytics Analytics { get; set; }
+    [Inject] private ITrackingNavigationState TrackingNavigationState { get; set; }
+
+    protected override void OnInitialized()
+    {
+        TrackingNavigationState.DisableTracking();
+        Analytics.Disable();
+    }
+
+    private void IncrementCount()
+    {
+        currentCount++;
+        Analytics.TrackEvent("Increment", currentCount, "CountPage");
+
+        //Example of how to track a generic event (see also https://developers.google.com/gtagjs/reference/ga4-events)
+        Analytics.TrackEvent("generate_lead", new { currency = "USD", value = currentCount });
+    }
+}
