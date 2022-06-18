@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Routing;
 using Microsoft.JSInterop;
 
 namespace GoogleAnalytics.Blazor;
@@ -13,6 +15,7 @@ namespace GoogleAnalytics.Blazor;
 public sealed class GBAnalyticsManager : IGBAnalyticsManager
 {
     private readonly IJSRuntime _jsRuntime;
+    private readonly NavigationManager _navigationManager;
     
     private bool _isGloballyEnabledTracking = true;
     private bool _suppressPageHitTracking = false;
@@ -23,9 +26,22 @@ public sealed class GBAnalyticsManager : IGBAnalyticsManager
     private bool _debug = false;
 
 
-    public GBAnalyticsManager(IJSRuntime jsRuntime)
+    public GBAnalyticsManager(IJSRuntime jsRuntime, NavigationManager navigationManager)
     {
         _jsRuntime = jsRuntime;
+        _navigationManager = navigationManager;
+        _navigationManager.LocationChanged += OnLocationChanged;
+
+        try
+        {
+            _ = OnLocationChanged(_navigationManager.Uri);
+        }
+        catch (Exception ex)
+        {
+            _ = ex;
+            // Do nothing because the exception is due to the
+            // js runtime being unavailable during the pre-render cycle
+        }
     }
 
 
@@ -38,6 +54,8 @@ public sealed class GBAnalyticsManager : IGBAnalyticsManager
     {
         _trackingId = trackingId;
         _debug = debug;
+
+        _ = OnLocationChanged(_navigationManager.Uri);
     }
 
 
@@ -150,4 +168,20 @@ public sealed class GBAnalyticsManager : IGBAnalyticsManager
     public bool IsTrackingSuppressed() => _suppressPageHitTracking;
     public void ReEnablePageHitTracking() => _suppressPageHitTracking = false;
 
+
+    private async void OnLocationChanged(object sender, LocationChangedEventArgs args)
+    {
+        await OnLocationChanged(args.Location).ConfigureAwait(false);
+    }
+
+
+    private async Task OnLocationChanged(string location)
+    {
+        if (!string.IsNullOrWhiteSpace(_trackingId) && !_suppressPageHitTracking)
+        {
+            await TrackNavigation(location);
+        }
+
+        _suppressPageHitTracking = false;
+    }
 }

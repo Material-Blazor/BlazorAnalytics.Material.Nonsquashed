@@ -8,7 +8,7 @@ builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
 builder.Services.AddSingleton<WeatherForecastService>();
 
-builder.Services.AddGoogleAnalytics("UA-111742878-2", true);
+builder.Services.AddGoogleAnalytics(true);
 
 var app = builder.Build();
 

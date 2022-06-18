@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace GoogleAnalytics.Blazor;
 
@@ -45,6 +46,10 @@ public static class GoogleAnalyticsExtensions
         return services.AddScoped<IGBAnalyticsManager>(p =>
         {
             var googleAnalytics = ActivatorUtilities.CreateInstance<GBAnalyticsManager>(p);
+
+            var tiSection = services.BuildServiceProvider().GetService<IConfiguration>().GetSection("GoogleAnalytics.Blazor:TrackingId");
+
+            trackingId ??= tiSection.Value;
 
             if (trackingId != null)
             {
