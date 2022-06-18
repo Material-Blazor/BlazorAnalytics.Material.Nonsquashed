@@ -10,7 +10,6 @@ namespace GoogleAnalytics.Blazor;
 
 
 /// <inheritdoc/>
-[Obsolete]
 public sealed class GBAnalyticsManager : IGBAnalyticsManager
 {
     private readonly IJSRuntime _jsRuntime;
@@ -23,7 +22,6 @@ public sealed class GBAnalyticsManager : IGBAnalyticsManager
     private Dictionary<string, object> _globalConfigData = new Dictionary<string, object>();
     private Dictionary<string, object> _globalEventData = new Dictionary<string, object>();
     private bool _isInitialized = false;
-    private bool _debug = false;
 
 
     public GBAnalyticsManager(IJSRuntime jsRuntime, NavigationManager navigationManager, ILogger<GBAnalyticsManager> logger)
@@ -36,14 +34,12 @@ public sealed class GBAnalyticsManager : IGBAnalyticsManager
 
 
     /// <summary>
-    /// Sets the tracking id and debug flag.
+    /// Sets the tracking id.
     /// </summary>
     /// <param name="trackingId"></param>
-    /// <param name="debug"></param>
-    public void Configure(string trackingId, bool debug)
+    public void Configure(string trackingId)
     {
         _trackingId = trackingId;
-        _debug = debug;
 
         _ = OnLocationChanged(_navigationManager.Uri);
     }
@@ -56,7 +52,7 @@ public sealed class GBAnalyticsManager : IGBAnalyticsManager
             throw new InvalidOperationException("Invalid TrackingId");
         }
 
-        await _jsRuntime.InvokeAsync<string>(GoogleAnalyticsInterop.Configure, _trackingId, _globalConfigData, _debug);
+        await _jsRuntime.InvokeAsync<string>(GoogleAnalyticsInterop.Configure, _trackingId, _globalConfigData);
         
         _isInitialized = true;
 

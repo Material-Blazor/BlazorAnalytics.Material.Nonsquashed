@@ -31,9 +31,8 @@ gtag("js", new Date());
 
 namespace GoogleAnalyticsInterop
 {
-    export function configure(trackingId: string, globalConfigObject: ConfigObject, debug: boolean = false): void
+    export function configure(trackingId: string, globalConfigObject: ConfigObject): void
     {
-        this.debug = debug;
         this.globalConfigObject = globalConfigObject;
         const script = document.createElement("script");
         script.async = true;
@@ -46,10 +45,6 @@ namespace GoogleAnalyticsInterop
         Object.assign(configObject, globalConfigObject)
 
         gtag("config", trackingId, configObject);
-
-        if(this.debug){
-            console.log(`[GTAG][${trackingId}] Configured!`);
-        }
     }
 
     export function navigate(trackingId: string, href: string): void
@@ -59,10 +54,6 @@ namespace GoogleAnalyticsInterop
         configObject.page_location = href;
         Object.assign(configObject, this.globalConfigObject)
         gtag("config", trackingId, configObject);
-
-        if(this.debug){
-            console.log(`[GTAG][${trackingId}] Navigated: '${href}'`);
-        }
     }
 
     export function trackEvent(eventName: string, eventData: EventDataObject, globalEventData: EventDataObject)
@@ -70,8 +61,5 @@ namespace GoogleAnalyticsInterop
         Object.assign(eventData, globalEventData)
 
         gtag("event", eventName, eventData);
-        if (this.debug) {
-          console.log(`[GTAG][Event triggered]: ${eventName}`);
-        }
     }
 }
