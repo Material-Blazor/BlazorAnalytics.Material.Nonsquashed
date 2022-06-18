@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Routing;
+using Microsoft.Extensions.Logging;
 using Microsoft.JSInterop;
 
 namespace GoogleAnalytics.Blazor;
@@ -14,7 +15,8 @@ public sealed class GBAnalyticsManager : IGBAnalyticsManager
 {
     private readonly IJSRuntime _jsRuntime;
     private readonly NavigationManager _navigationManager;
-    
+    private readonly ILogger<GBAnalyticsManager> _logger;
+
     private bool _performGlobalTracking = true;
     private bool _suppressPageHitTracking = false;
     private string _trackingId = null;
@@ -24,10 +26,11 @@ public sealed class GBAnalyticsManager : IGBAnalyticsManager
     private bool _debug = false;
 
 
-    public GBAnalyticsManager(IJSRuntime jsRuntime, NavigationManager navigationManager)
+    public GBAnalyticsManager(IJSRuntime jsRuntime, NavigationManager navigationManager, ILogger<GBAnalyticsManager> logger)
     {
         _jsRuntime = jsRuntime;
         _navigationManager = navigationManager;
+        _logger = logger;
         _navigationManager.LocationChanged += OnLocationChanged;
     }
 
@@ -56,6 +59,8 @@ public sealed class GBAnalyticsManager : IGBAnalyticsManager
         await _jsRuntime.InvokeAsync<string>(GoogleAnalyticsInterop.Configure, _trackingId, _globalConfigData, _debug);
         
         _isInitialized = true;
+
+        _logger.LogDebug($"[GTAG][{_trackingId}] Configured!");
     }
 
 
@@ -93,6 +98,8 @@ public sealed class GBAnalyticsManager : IGBAnalyticsManager
         }
 
         await _jsRuntime.InvokeAsync<string>(GoogleAnalyticsInterop.Navigate, _trackingId, uri).ConfigureAwait(false);
+
+        _logger.LogDebug($"[GTAG][{_trackingId}] Navigated: '{uri}'");
     }
 
 
@@ -129,6 +136,8 @@ public sealed class GBAnalyticsManager : IGBAnalyticsManager
         }
 
         await _jsRuntime.InvokeAsync<string>( GoogleAnalyticsInterop.TrackEvent, eventName, eventData, _globalEventData).ConfigureAwait(false);
+
+        _logger.LogDebug($"[GTAG][Event triggered] '{eventName}, {eventData}'");
     }
 
 
