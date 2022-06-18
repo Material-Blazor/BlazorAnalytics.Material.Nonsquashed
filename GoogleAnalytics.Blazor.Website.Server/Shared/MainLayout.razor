@@ -19,7 +19,7 @@
 </div>
 
 @code {
-    [Inject] private IAnalytics Analytics { get; set; } = null;
+    [Inject] private IGBAnalyticsManager Analytics { get; set; } = null;
 
     private string userId = $"userid{DateTime.Now.Ticks}";
     private Dictionary<string, object> globalConfigData = new();

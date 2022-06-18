@@ -8,7 +8,7 @@ namespace GoogleAnalytics.Blazor;
 /// <summary>
 /// Google Analytics event and navigation tracking.
 /// </summary>
-public interface IAnalytics
+public interface IGBAnalyticsManager
 {
     /// <summary>
     /// Remove Obsolete attribute once functionality is determined.
@@ -70,11 +70,23 @@ public interface IAnalytics
     /// <summary>
     /// Enable global tracking.
     /// </summary>
-    void Enable();
+    void EnableTracking();
 
 
     /// <summary>
     /// Disable global tracking.
     /// </summary>
-    void Disable();
+    void DisableTracking();
+    
+    
+    /// <summary>
+    /// Suppresses tracking notification to GA of a page hit. Place a call
+    /// to this function in <see cref="Microsoft.AspNetCore.Components.ComponentBase.OnInitialized"/>
+    /// or <see cref="Microsoft.AspNetCore.Components.ComponentBase.OnInitializedAsync"/> to suppress
+    /// that page's tracking.
+    /// </summary>
+    public void SuppressPageHitTracking();
+
+    [Obsolete] public bool IsTrackingSuppressed();
+    [Obsolete] public void ReEnablePageHitTracking();
 }

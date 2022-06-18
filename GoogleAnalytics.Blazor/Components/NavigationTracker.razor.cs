@@ -10,9 +10,8 @@ namespace GoogleAnalytics.Blazor;
 /// </summary>
 public class NavigationTracker : ComponentBase
 {
-    [Inject] private IAnalytics Analytics { get; set; } = null;
+    [Inject] private IGBAnalyticsManager AnalyticsManager { get; set; } = null;
     [Inject] private NavigationManager NavigationManager { get; set; } = null;
-    [Inject] private ITrackingNavigationState TrackingNavigationState { get; set; } = null;
 
 
     protected override async Task OnInitializedAsync()
@@ -50,11 +49,11 @@ public class NavigationTracker : ComponentBase
 
     private async Task OnLocationChanged(string location)
     {
-        if (TrackingNavigationState.IsTrackingEnabled())
+        if (!AnalyticsManager.IsTrackingSuppressed())
         {
-            await Analytics.TrackNavigation(location);
+            await AnalyticsManager.TrackNavigation(location);
         }
 
-        TrackingNavigationState.EnableTracking();
+        AnalyticsManager.ReEnablePageHitTracking();
     }
 }

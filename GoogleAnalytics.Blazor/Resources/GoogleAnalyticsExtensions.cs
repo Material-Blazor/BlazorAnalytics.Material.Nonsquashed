@@ -3,7 +3,7 @@
 namespace GoogleAnalytics.Blazor;
 
 /// <summary>
-/// Service collection extensions to add a scoped <see cref="IAnalytics"/> service.
+/// Service collection extensions to add a scoped <see cref="IGBAnalyticsManager"/> service.
 /// </summary>
 public static class GoogleAnalyticsExtensions
 {
@@ -42,11 +42,9 @@ public static class GoogleAnalyticsExtensions
     /// <returns></returns>
     public static IServiceCollection AddGoogleAnalytics(this IServiceCollection services, string trackingId, bool debug)
     {
-        services.AddScoped<ITrackingNavigationState, TrackingNavigationState>();
-        
-        return services.AddScoped<IAnalytics>(p =>
+        return services.AddScoped<IGBAnalyticsManager>(p =>
         {
-            var googleAnalytics = ActivatorUtilities.CreateInstance<GoogleAnalyticsStrategy>(p);
+            var googleAnalytics = ActivatorUtilities.CreateInstance<GBAnalyticsManager>(p);
 
             if (trackingId != null)
             {

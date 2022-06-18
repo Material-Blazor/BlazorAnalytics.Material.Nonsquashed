@@ -13,12 +13,10 @@
 @code {
     private int currentCount = 0;
 
-    [Inject] private IAnalytics Analytics { get; set; }
-    [Inject] private ITrackingNavigationState TrackingNavigationState { get; set; }
+    [Inject] private IGBAnalyticsManager Analytics { get; set; }
 
     protected override void OnInitialized()
     {
-        //TrackingNavigationState.DisableTracking();
         //Analytics.Disable();
     }
 

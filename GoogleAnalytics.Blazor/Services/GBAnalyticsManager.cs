@@ -7,14 +7,15 @@ namespace GoogleAnalytics.Blazor;
 
 
 /// <summary>
-/// The google analytics strategy implementing <see cref="IAnalytics"/>. NEED A BETTER DESCRIPTION.
+/// The google analytics strategy implementing <see cref="IGBAnalyticsManager"/>. NEED A BETTER DESCRIPTION.
 /// </summary>
 [Obsolete]
-public sealed class GoogleAnalyticsStrategy : IAnalytics
+public sealed class GBAnalyticsManager : IGBAnalyticsManager
 {
     private readonly IJSRuntime _jsRuntime;
     
     private bool _isGloballyEnabledTracking = true;
+    private bool _suppressPageHitTracking = false;
     private string _trackingId = null;
     private Dictionary<string, object> _globalConfigData = new Dictionary<string, object>();
     private Dictionary<string, object> _globalEventData = new Dictionary<string, object>();
@@ -22,7 +23,7 @@ public sealed class GoogleAnalyticsStrategy : IAnalytics
     private bool _debug = false;
 
 
-    public GoogleAnalyticsStrategy(IJSRuntime jsRuntime)
+    public GBAnalyticsManager(IJSRuntime jsRuntime)
     {
         _jsRuntime = jsRuntime;
     }
@@ -108,6 +109,8 @@ public sealed class GoogleAnalyticsStrategy : IAnalytics
         return TrackEvent(eventName, eventCategory, eventLabel, eventValue);
     }
 
+
+    /// <inheritdoc/>
     public async Task TrackEvent(string eventName, object eventData)
     {
         if (!_isGloballyEnabledTracking)
@@ -125,15 +128,26 @@ public sealed class GoogleAnalyticsStrategy : IAnalytics
 
 
     /// <inheritdoc/>
-    public void Enable()
+    public void EnableTracking()
     {
         _isGloballyEnabledTracking = true;
     }
 
 
     /// <inheritdoc/>
-    public void Disable()
+    public void DisableTracking()
     {
         _isGloballyEnabledTracking = false;
     }
+
+
+    /// <inheritdoc/>
+    public void SuppressPageHitTracking()
+    {
+        _suppressPageHitTracking = true;
+    }
+
+    public bool IsTrackingSuppressed() => _suppressPageHitTracking;
+    public void ReEnablePageHitTracking() => _suppressPageHitTracking = false;
+
 }

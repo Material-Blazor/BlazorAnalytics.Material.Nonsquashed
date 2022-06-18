@@ -9,6 +9,8 @@
 
 <p>This component demonstrates fetching data from a service.</p>
 
+<p style="color: red; font-weight: bold">Google Analytics tracking is suppressed for this page.</p>
+
 @if (forecasts == null)
 {
     <p><em>Loading...</em></p>
@@ -39,10 +41,14 @@ else
 }
 
 @code {
+    [Inject] private IGBAnalyticsManager AnalyticsManager { get; set; }
+
     private WeatherForecast[]? forecasts;
 
     protected override async Task OnInitializedAsync()
     {
+        AnalyticsManager.SuppressPageHitTracking();
+
         forecasts = await ForecastService.GetForecastAsync(DateTime.Now);
     }
 }
