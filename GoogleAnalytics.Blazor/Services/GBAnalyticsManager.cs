@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Routing;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.JSInterop;
 
@@ -16,12 +17,12 @@ public sealed class GBAnalyticsManager : IGBAnalyticsManager
     private readonly NavigationManager _navigationManager;
     private readonly ILogger<GBAnalyticsManager> _logger;
 
-    private bool _performGlobalTracking = true;
-    private bool _suppressPageHitTracking = false;
-    private string _trackingId = null;
-    private Dictionary<string, object> _globalConfigData = new Dictionary<string, object>();
-    private Dictionary<string, object> _globalEventData = new Dictionary<string, object>();
-    private bool _isInitialized = false;
+    private bool PerformGlobalTracking { get; set; } = true;
+    private bool SuppressPageHits { get; set; } = false;
+    private string TrackingId { get; set; } = null;
+    private Dictionary<string, object> GlobalConfigData { get; set; } = new();
+    private Dictionary<string, object> GlobalEventData { get; set; } = new();
+    private bool IsInitialized { get; set; } = false;
 
 
     public GBAnalyticsManager(IJSRuntime jsRuntime, NavigationManager navigationManager, ILogger<GBAnalyticsManager> logger)
@@ -29,6 +30,7 @@ public sealed class GBAnalyticsManager : IGBAnalyticsManager
         _jsRuntime = jsRuntime;
         _navigationManager = navigationManager;
         _logger = logger;
+        
         _navigationManager.LocationChanged += OnLocationChanged;
     }
 
@@ -39,7 +41,7 @@ public sealed class GBAnalyticsManager : IGBAnalyticsManager
     /// <param name="trackingId"></param>
     public void Configure(string trackingId)
     {
-        _trackingId = trackingId;
+        TrackingId = trackingId;
 
         _ = OnLocationChanged(_navigationManager.Uri);
     }
@@ -47,25 +49,25 @@ public sealed class GBAnalyticsManager : IGBAnalyticsManager
 
     private async Task InitializeAsync()
     {
-        if (_trackingId == null)
+        if (TrackingId == null)
         {
             throw new InvalidOperationException("Invalid TrackingId");
         }
 
-        await _jsRuntime.InvokeAsync<string>(GoogleAnalyticsInterop.Configure, _trackingId, _globalConfigData);
+        await _jsRuntime.InvokeAsync<string>(GoogleAnalyticsInterop.Configure, TrackingId, GlobalConfigData);
         
-        _isInitialized = true;
+        IsInitialized = true;
 
-        _logger.LogDebug($"[GTAG][{_trackingId}] Configured!");
+        LogDebugMessage($"[GTAG][{TrackingId}] Configured!");
     }
 
 
     /// <inheritdoc/>
     public async Task ConfigureGlobalConfigData(Dictionary<string, object> globalConfigData)
     {
-        if (!_isInitialized)
+        if (!IsInitialized)
         {
-            _globalConfigData = globalConfigData;
+            GlobalConfigData = globalConfigData;
 
             await InitializeAsync().ConfigureAwait(false);
         }
@@ -75,7 +77,7 @@ public sealed class GBAnalyticsManager : IGBAnalyticsManager
     /// <inheritdoc/>
     public Task ConfigureGlobalEventData(Dictionary<string, object> globalEventData)
     {
-        _globalEventData = globalEventData;
+        GlobalEventData = globalEventData;
         return Task.CompletedTask;
     }
 
@@ -83,19 +85,19 @@ public sealed class GBAnalyticsManager : IGBAnalyticsManager
     /// <inheritdoc/>
     public async Task TrackNavigation(string uri)
     {
-        if (!_performGlobalTracking)
+        if (!PerformGlobalTracking)
         {
             return;
         }
 
-        if (!_isInitialized)
+        if (!IsInitialized)
         {
             await InitializeAsync().ConfigureAwait(false);
         }
 
-        await _jsRuntime.InvokeAsync<string>(GoogleAnalyticsInterop.Navigate, _trackingId, uri).ConfigureAwait(false);
+        await _jsRuntime.InvokeAsync<string>(GoogleAnalyticsInterop.Navigate, TrackingId, uri).ConfigureAwait(false);
 
-        _logger.LogDebug($"[GTAG][{_trackingId}] Navigated: '{uri}'");
+        LogDebugMessage($"[GTAG][{TrackingId}] Navigated: '{uri}'");
     }
 
 
@@ -121,47 +123,47 @@ public sealed class GBAnalyticsManager : IGBAnalyticsManager
     /// <inheritdoc/>
     public async Task TrackEvent(string eventName, object eventData)
     {
-        if (!_performGlobalTracking)
+        if (!PerformGlobalTracking)
         {
             return;
         }
 
-        if (!_isInitialized)
+        if (!IsInitialized)
         {
             await InitializeAsync().ConfigureAwait(false);
         }
 
-        await _jsRuntime.InvokeAsync<string>( GoogleAnalyticsInterop.TrackEvent, eventName, eventData, _globalEventData).ConfigureAwait(false);
+        await _jsRuntime.InvokeAsync<string>( GoogleAnalyticsInterop.TrackEvent, eventName, eventData, GlobalEventData).ConfigureAwait(false);
 
-        _logger.LogDebug($"[GTAG][Event triggered] '{eventName}, {eventData}'");
+        LogDebugMessage($"[GTAG][Event triggered] '{eventName}, {eventData}'");
     }
 
 
     /// <inheritdoc/>
     public void EnableGlobalTracking()
     {
-        _performGlobalTracking = true;
+        PerformGlobalTracking = true;
     }
 
 
     /// <inheritdoc/>
     public void DisableGlobalTracking()
     {
-        _performGlobalTracking = false;
+        PerformGlobalTracking = false;
     }
 
 
     /// <inheritdoc/>
     public bool IsGlobalTrackingEnabled()
     {
-        return _performGlobalTracking;
+        return PerformGlobalTracking;
     }
 
 
     /// <inheritdoc/>
     public void SuppressPageHitTracking()
     {
-        _suppressPageHitTracking = true;
+        SuppressPageHits = true;
     }
 
 
@@ -173,11 +175,17 @@ public sealed class GBAnalyticsManager : IGBAnalyticsManager
 
     private async Task OnLocationChanged(string location)
     {
-        if (!string.IsNullOrWhiteSpace(_trackingId) && !_suppressPageHitTracking)
+        if (!string.IsNullOrWhiteSpace(TrackingId) && !SuppressPageHits)
         {
             await TrackNavigation(location);
         }
 
-        _suppressPageHitTracking = false;
+        SuppressPageHits = false;
+    }
+
+    
+    private void LogDebugMessage(string message)
+    {
+        _logger.LogDebug(message);
     }
 }
